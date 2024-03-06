@@ -1,0 +1,16 @@
+.DS_Store
+
+*.pyc
+*__pycache__
+notes.txt
+build/
+dist/
+*.egg-info/
+*.code-workspace
+
+*.pickle
+*.session
+*secret*.json
+*creds.json
+docs/_build
+.tox
