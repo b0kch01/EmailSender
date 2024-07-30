@@ -3,4 +3,6 @@ __pycache__
 venv/
 *.session
 *.json
-main.py
+test.*
+
+# main.py

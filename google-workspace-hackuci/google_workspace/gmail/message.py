@@ -197,7 +197,8 @@ class Message(BaseMessage):
         super().__init__(gmail_client, message_data)
         if message_data.get("raw"):
             self.message_format = "raw"
-            self.email_object = utils.get_email_object(self.message_data["raw"])
+            self.email_object = utils.get_email_object(
+                self.message_data["raw"])
             self._process_message()
 
     def __str__(self) -> str:
@@ -219,7 +220,8 @@ class Message(BaseMessage):
                 if self.is_chat_message:
                     data = part.get_payload()
                 else:
-                    data = part.get_payload(decode=self.message_format == "raw")
+                    data = part.get_payload(
+                        decode=self.message_format == "raw")
                     # If format is full then the payload is the ready text.
                     if self.message_format == "raw":
                         try:
@@ -268,8 +270,13 @@ class Message(BaseMessage):
             references = self.message_id
         text_email, html_email = utils.create_replied_message(self, text, html)
         return self.gmail_client.send_message(
-            to= self.raw_to if follow_up else self.raw_from,
-            subject=f"Re: {self.subject}",
+            # You want the reply to be towards the original sender
+            to=self.raw_to if follow_up else self.raw_from,
+
+            # Make sure not to double up on the "Re: " prefix
+            subject=self.subject if self.subject.startswith(
+                "Re: ") else f"Re: {self.subject}",
+
             text=text_email,
             html=html_email,
             attachments=attachments,
@@ -334,7 +341,8 @@ class Message(BaseMessage):
 
         self = cls(gmail_client, message_data)
         self.message_format = "full"
-        self.email_object = utils.full_format_to_message_object(message_data["payload"])
+        self.email_object = utils.full_format_to_message_object(
+            message_data["payload"])
         self._process_message()
         return self
 
@@ -408,7 +416,7 @@ class MessageMetadata(BaseMessage):
         gmail_client: The gmail client.
         message_data: The raw message data from the API.
         gmail_id: The message id used for the API.
-        thread_id: The messgae thread ID.
+        thread_id: The message thread ID.
         label_ids: A list of labels.
         snippet: A short snippet from the message.
         is_seen: Whether the message is marked as read or not.
@@ -420,7 +428,8 @@ class MessageMetadata(BaseMessage):
         self._process_message()
 
     def _process_message(self):
-        headers = utils.invert_message_headers(self.message_data["payload"]["headers"])
+        headers = utils.invert_message_headers(
+            self.message_data["payload"]["headers"])
         self.raw_date = headers.get("Date")
         self.date = utils.parse_date(self.raw_date)
         self.subject = headers.get("Subject")
@@ -429,7 +438,7 @@ class MessageMetadata(BaseMessage):
         self.in_reply_to = headers.get("In-Reply-To")
         self.references = headers.get("References")
         self.is_reply = bool(self.in_reply_to)
-        self.is_bulk = headers.get["Precedence"] == "bulk"
+        self.is_bulk = headers.get("Precedence") == "bulk"
 
         # from, to, cc, bcc
         self.raw_from = headers.get("From")

@@ -1,0 +1,9 @@
+alive_progress==3.1.5
+tabulate==0.9.0
+
+google-api-python-client
+google-auth-oauthlib
+chardet
+python-magic
+trython
+typing_extensions
